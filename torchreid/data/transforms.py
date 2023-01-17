@@ -324,3 +324,8 @@ def build_transforms(
     ])
 
     return transform_tr, transform_te
+
+def get_costum_transformer():
+    mean = [0.3525, 0.3106, 0.3140]
+    std = [0.2660, 0.2522, 0.2505]
+    normalizer = Normalize(mean=mean, std=std)
