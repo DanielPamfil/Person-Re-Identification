@@ -5,7 +5,7 @@ import time
 import sys
 
 from torchreid.utils import Logger
-from torchreid.data.transforms import get_costum_transformer
+from torchreid.data.transforms import get_costum_transformer, get_validation_transformer
 
 
 parser = argparse.ArgumentParser(description='')
@@ -31,3 +31,7 @@ def main():
     sys.stdout = Logger(os.path.join(args.logs_dir, log_text_name))
 
     # Data loading
+    train_transformer = get_costum_transformer()
+    val_transformer = get_validation_transformer()
+
+    # Load datasets
