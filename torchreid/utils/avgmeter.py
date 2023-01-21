@@ -71,3 +71,30 @@ class MetricMeter(object):
                 '{} {:.4f} ({:.4f})'.format(name, meter.val, meter.avg)
             )
         return self.delimiter.join(output_str)
+
+
+class ProgressMeter(object):
+    def __init__(self, iters_per_epoch, meters, iters=None, prefix=""):
+        self.batch_fmtstr = self._get_batch_fmtstr(iters_per_epoch)
+        if not iters is None:
+            self.iters_fmtstr = self._get_batch_fmtstr(iters)
+        else:
+            self.iters_fmtstr = None
+        self.iters_per_epoch = iters_per_epoch
+        self.iters = iters
+        self.meters = meters
+        self.prefix = prefix
+
+    def display(self, i):
+        entries = self.prefix + self.batch_fmtstr.format(i % self.iters_per_epoch)
+        if not self.iters_fmtstr is None:
+            entries += self.iters_fmtstr.format(i)
+        entries = [entries]
+        entries += [str(meter) for meter in self.meters]
+        print('  '.join(entries))
+
+    def _get_batch_fmtstr(self, num_batches):
+        num_digits = len(str(num_batches // 1))
+        fmt = '{:' + str(num_digits) + 'd}'
+        return '[' + fmt + '/' + fmt.format(num_batches) + ']'
+

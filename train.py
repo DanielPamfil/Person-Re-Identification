@@ -6,15 +6,17 @@ import sys
 
 from torchreid.utils import Logger
 from torchreid.data.transforms import get_costum_transformer, get_validation_transformer
-
+from torchreid.data.datasets.dataset import CostumDataset
 
 parser = argparse.ArgumentParser(description='')
 
-parser.add_argument('--path', default='')
+parser.add_argument('--dataset_path', type=str, default='')
+parser.add_argument('--key_path', type=str, default='')
+
 parser.add_argument('--gpu', default=None, type=int, help='ID of the GPU ')
 
 parser.add_argument('--snapshots_dir', type=str, default='snapshots')
-parser.add_argument('logs_dir', type=str, default='logs')
+parser.add_argument('--logs_dir', type=str, default='logs')
 
 def main():
     args = parser.parse_args()
@@ -35,3 +37,6 @@ def main():
     val_transformer = get_validation_transformer()
 
     # Load datasets
+    train_dataset = CostumDataset(args.dataset_path, args.key_path, train_transformer)
+
+

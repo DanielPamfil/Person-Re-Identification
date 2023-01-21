@@ -1,10 +1,16 @@
 from __future__ import division, print_function, absolute_import
 import copy
+import pickle
+
+import lmdb
 import numpy as np
 import os.path as osp
 import tarfile
 import zipfile
+import cv2
+from PIL import Image
 import torch
+from torch.utils.data import Dataset as dtst
 
 from torchreid.utils import read_image, download_url, mkdir_if_missing
 
@@ -480,3 +486,70 @@ class VideoDataset(Dataset):
             )
         )
         print('  -------------------------------------------')
+
+class CostumDataset(dtst):
+    def __init__(self, data_dir, key_path, transform=None):
+        super(CostumDataset, self).__init__()
+        self.data_dir = data_dir
+        self.key_path = key_path
+        self.transform = transform
+
+        if not osp.exists(self.data_dir):
+            raise IOError('dataset directiory: {} is not exists'.format(
+                self.data_dir))
+        self.load_dataset_infos()
+        self.env = None
+
+    def load_dataset_infos(self):
+        if not osp.exists(self.key_path):
+            raise IOError('key file: {} not exists'.format(
+                self.key_path))
+        with open(self.key_path, 'rb') as f:
+            data = pickle.load(f)
+        self.keys = data
+        if 'pids' in data:
+            self.labels = np.array(data['pids'], np.int)
+        elif 'vids' in data:
+            self.labels = np.array(data['vids'], np.int)
+        else:
+            self.labels = np.zeros(len(self.keys), np.int)
+        self.num_cls = len(set(self.labels))
+
+    def __len__(self):
+        return len(self.keys)
+
+    def _init_lmdb(self):
+        self.env = lmdb.open(self.data_dir, readonly=True, lock=False,
+                             readahead=False, meminit=False)
+
+    def __getitem__(self, index):
+        if self.env is None:
+            self._init_lmdb()
+
+        key = self.keys[index]
+        label = self.labels[index]
+
+        with self.env.begin(write=False) as txn:
+            buf = txn.get(key.encode('ascii'))
+        img_flat = np.frombuffer(buf, dtype=np.uint8)
+        im = cv2.imdecode(img_flat, cv2.IMREAD_COLOR)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        if self.transform is not None:
+            im = Image.fromarray(im)
+            im1 =self.transform(im)
+            if self.strong_transform is not None:
+                im2 = self.strong_transform(im)
+            else:
+                im / 255
+        else:
+            im1 = im / 255
+            if self.strong_transform(im):
+                im2 = self.strong_transform(im)
+            else:
+                im2 = im / 255
+        return im1, im2, label
+
+class StandardDataset(dtst):
+
+    def __init__(self):
+        pass
