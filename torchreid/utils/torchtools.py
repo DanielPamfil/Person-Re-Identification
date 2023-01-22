@@ -7,6 +7,7 @@ from functools import partial
 from collections import OrderedDict
 import torch
 import torch.nn as nn
+import math
 
 from .tools import mkdir_if_missing
 
@@ -134,28 +135,17 @@ def resume_from_checkpoint(fpath, model, optimizer=None, scheduler=None):
     return start_epoch
 
 
-def adjust_learning_rate(
-    optimizer,
-    base_lr,
-    epoch,
-    stepsize=20,
-    gamma=0.1,
-    linear_decay=False,
-    final_lr=0,
-    max_epoch=100
-):
-    r"""Adjusts learning rate.
-
-    Deprecated.
-    """
-    if linear_decay:
-        # linearly decay learning rate from base_lr to final_lr
-        frac_done = epoch / max_epoch
-        lr = frac_done*final_lr + (1.-frac_done) * base_lr
-    else:
-        # decay learning rate by gamma for every stepsize
-        lr = base_lr * (gamma**(epoch // stepsize))
-
+def adjust_learning_rate(optimizer, epoch, args):
+    """Decay the learning rate based on schedule"""
+    lr = args.lr * args.lr_mult
+    if epoch < args.warmup_epochs:
+        # warm up
+        lr = args.lr + (args.lr * args.lr_mult - args.lr) / args.warmup_epochs * epoch
+    elif args.cos:  # cosine lr schedule
+        lr *= 0.5 * (1. + math.cos(math.pi * epoch / args.epochs))
+    else:  # stepwise lr schedule
+        for milestone in args.schedule:
+            lr *= 0.1 if epoch >= milestone else 1.
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 

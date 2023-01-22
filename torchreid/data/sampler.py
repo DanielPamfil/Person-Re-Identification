@@ -4,6 +4,7 @@ import numpy as np
 import random
 from collections import defaultdict
 from torch.utils.data.sampler import Sampler, RandomSampler, SequentialSampler
+import torch.distributed as dist
 
 AVAI_SAMPLERS = [
     'RandomIdentitySampler', 'SequentialSampler', 'RandomSampler',
@@ -243,3 +244,32 @@ def build_train_sampler(
         sampler = RandomSampler(data_source)
 
     return sampler
+
+
+class InferenceSampler(Sampler):
+    """ Sampler used for inference in DistributedDataParallel
+        This sampler produces different number of samples for different workers.
+    """
+    def __init__(self, data_quantity: int, num_replicas: int = None, rank: int = None):
+        self.data_quantity = data_quantity
+        assert(data_quantity > 0), "dataset is empty"
+        if num_replicas in None:
+            if not dist.is_available():
+                raise RuntimeError("Requires distributed package to be available")
+            num_replicas = dist.get_world_size()
+        if rank is None:
+            if not dist.is_available():
+                raise RuntimeError("Requires distributed package to be available")
+            rank = dist.get_rank()
+
+        self.common_size = (self.data_quantity + num_replicas - 1) // num_replicas
+
+        self.begin = self.common_size * rank
+        self.end = min(self.common_size * (rank + 1), self.data_quantity)
+        self.indices = range(self.begin, self.end)
+
+    def __iter__(self):
+        return iter(self.indices)
+
+    def __len__(self):
+        return len(self.indices)

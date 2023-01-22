@@ -1,3 +1,5 @@
 import sys
-import numpy as mp
+import numpy as np
+
 print(sys.prefix)
+
