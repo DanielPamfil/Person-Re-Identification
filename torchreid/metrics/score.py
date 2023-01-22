@@ -23,6 +23,11 @@ import torch.distributed as dist
 #         flag = torch.ones(local_size, dtype=torch.uint8, device=tensor.device)
 #     return tensor, flag
 
+def print_scores(mAP, cmc_scores, print_str=''):
+    if print_str:
+        print('{:s}'.format(print_str), end='')
+    print(('[mAP: {:5.2%}], [cmc1: {:5.2%}], [cmc5: {:5.2%}],'
+           ' [cmc10: {:5.2%}]').format(mAP, *cmc_scores[[0, 4, 9]]))
 
 @torch.no_grad()
 
