@@ -551,5 +551,25 @@ class CostumDataset(dtst):
 
 class StandardDataset(dtst):
 
-    def __init__(self):
-        pass
+    def __init__(self, root='data', dataset_name='market', mode='train', transform=None):
+        self.root = root
+        self.dataset_name = dataset_name
+        self.mode = mode
+        self.transform = transform
+        self.dataset_directory = osp.join(self.root, self.dataset_name)
+        self.train_directory = osp.join(self.dataset_directory, 'bounding_box_train')
+        self.query_directory = osp.join(self.dataset_directory, 'query')
+        self.gallery_directory = osp.join(self.dataset_directory, 'bounding_box_test')
+        if self.mode == 'train':
+            self.items, self.num_pids, self_cams = self.preprocess(self.train_directory)
+        else:
+            self.query, self.num_query_pids, self.num_query_cams = self.preprocess(self.query_directory, False, is_query=True)
+            self.gallery, self.num_gallery_pids, self.num_gallery_cams = self.preprocess(self.gallery_directory, False, is_query=False)
+            self.items = self.query + self.gallery
+            self.num_pids = max(self.num_gallery_pids, self.num_query_pids)
+            self.num_cams = max(self.num_query_cams, self.num_gallery_cams)
+
+    def preprocess(self, path, is_query=None):
+        all_pids, all_cids = {}, {}
+        results, file_paths = [], []
+        for
