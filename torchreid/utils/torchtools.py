@@ -58,7 +58,10 @@ def save_checkpoint(
     if is_best:
         shutil.copy(fpath, osp.join(osp.dirname(fpath), 'model-best.pth.tar'))
 
-
+def save_checkpoint_light(state, save_cur, cur_name='ckpt.pth', lastest_name='latest.pth'):
+    torch.save(state, lastest_name)
+    if save_cur:
+        shutil.copyfile(lastest_name, cur_name)
 def load_checkpoint(fpath):
     r"""Loads checkpoint.
 

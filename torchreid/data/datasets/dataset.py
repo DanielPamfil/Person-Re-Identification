@@ -8,6 +8,7 @@ import os.path as osp
 import tarfile
 import zipfile
 import cv2
+import re
 from PIL import Image
 import torch
 from torch.utils.data import Dataset as dtst
@@ -569,7 +570,26 @@ class StandardDataset(dtst):
             self.num_pids = max(self.num_gallery_pids, self.num_query_pids)
             self.num_cams = max(self.num_query_cams, self.num_gallery_cams)
 
-    def preprocess(self, path, is_query=None):
+    def preprocess(self, path, relabel=True, is_query=None):
+        pattern = re.compile(r'([-\d]+)_c(\d+)')
         all_pids, all_cids = {}, {}
         results, file_paths = [], []
-        for
+        for file_path in file_paths:
+            file_name = osp.basename(file_path)
+            pid, cid = map(int, pattern.search(file_name).groups())
+            if pid == -1: continue
+            if relabel:
+                if pid not in all_pids:
+                    all_pids[pid] = len(all_pids)
+            else:
+                if pid not in all_pids:
+                    all_pids[pid] = len(all_pids)
+            if cid not in all_cids:
+                all_cids[cid] = cid
+            pid = all_pids[pid]
+            if is_query is None:
+                results.append([file_paths, pid, cid])
+            else:
+                flag = 1 if is_query else 0
+                results.append([file_paths, pid, cid, flag])
+        return sorted(results), int(len(all_pids)), int(len(all_cids))
