@@ -2,6 +2,7 @@ import argparse
 import torch
 import torch.distributed as dist
 from torchreid.metrics.score import reid_score
+from torchreid.utils.torchtools import gather_tensors
 
 def evaluate(val_loader, model, args):
     model.eval()
@@ -20,13 +21,10 @@ def evaluate(val_loader, model, args):
     ######da rivedere
     flags = torch.cat(flags, dim=0)
     dist.barrier()
-    #######################################
-    # For multiprocessing, don't use for now
-    #feats = gather_tensors(feats)
-    #pids  = gather_tensors(pids)
-    #cams  = gather_tensors(cams)
-    #flags = gather_tensors(flags)
-    ########################################
+    feats = gather_tensors(features)
+    pids  = gather_tensors(pids)
+    cams  = gather_tensors(cameras)
+    flags = gather_tensors(flags)
     if args.rank == 0:
         query_idx = flags > 0
         gall_idx = flags < 1

@@ -1,0 +1,2 @@
+<torchreid.data.datasets.dataset.StandardDataset object at 0x000002452F130C10>
+Does not exist any previus snapshot in the following directory

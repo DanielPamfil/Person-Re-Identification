@@ -359,7 +359,7 @@ def get_costum_transformer(height=256, width=128, two_crop=True):
     elif color_jitter_p == 1:
         augmentation.append(ColorJitter(color_jitter_s, color_jitter_s, color_jitter_s, color_jitter_s))
 
-    gray_scale_p = augmentation_arguments('gs', 0.)
+    gray_scale_p = augmentation_arguments.get('gs', 0.)
     if 0. < gray_scale_p <= 1.:
         augmentation.append(RandomGrayscale(p=gray_scale_p))
 

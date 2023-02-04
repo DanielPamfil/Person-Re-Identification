@@ -12,6 +12,7 @@ import re
 from PIL import Image
 import torch
 from torch.utils.data import Dataset as dtst
+from glob import glob
 
 from torchreid.utils import read_image, download_url, mkdir_if_missing
 
@@ -552,6 +553,7 @@ class CostumDataset(dtst):
 
 class StandardDataset(dtst):
 
+    EXTs = ('*.jpg', '*.png', '*.jpeg', '*.bmp', '*.ppm')
     def __init__(self, root='data', dataset_name='market', mode='train', transform=None):
         self.root = root
         self.dataset_name = dataset_name
@@ -574,6 +576,8 @@ class StandardDataset(dtst):
         pattern = re.compile(r'([-\d]+)_c(\d+)')
         all_pids, all_cids = {}, {}
         results, file_paths = [], []
+        for ext in self.EXTs:
+            file_paths.extend(glob(osp.join(path, ext)))
         for file_path in file_paths:
             file_name = osp.basename(file_path)
             pid, cid = map(int, pattern.search(file_name).groups())
@@ -593,3 +597,6 @@ class StandardDataset(dtst):
                 flag = 1 if is_query else 0
                 results.append([file_paths, pid, cid, flag])
         return sorted(results), int(len(all_pids)), int(len(all_cids))
+
+    def __len__(self):
+        return len(self.items)

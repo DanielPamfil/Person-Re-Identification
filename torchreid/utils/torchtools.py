@@ -8,6 +8,7 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import math
+import torch.distributed as dist
 
 from .tools import mkdir_if_missing
 
@@ -138,16 +139,17 @@ def resume_from_checkpoint(fpath, model, optimizer=None, scheduler=None):
     return start_epoch
 
 
-def adjust_learning_rate(optimizer, epoch, args):
+def adjust_learning_rate(optimizer, epoch, lr_def=0.3, warmup_epochs=0, cos=1, tot_epochs=200, schedule='60,80'):
     """Decay the learning rate based on schedule"""
-    lr = args.lr * args.lr_mult
-    if epoch < args.warmup_epochs:
+    #lr = args.lr * args.lr_mult
+    lr = lr_def
+    if epoch < warmup_epochs:
         # warm up
-        lr = args.lr + (args.lr * args.lr_mult - args.lr) / args.warmup_epochs * epoch
-    elif args.cos:  # cosine lr schedule
-        lr *= 0.5 * (1. + math.cos(math.pi * epoch / args.epochs))
+        lr = lr_def + (lr_def * 1 - lr_def) / warmup_epochs * epoch
+    elif cos:  # cosine lr schedule
+        lr *= 0.5 * (1. + math.cos(math.pi * epoch / tot_epochs))
     else:  # stepwise lr schedule
-        for milestone in args.schedule:
+        for milestone in schedule:
             lr *= 0.1 if epoch >= milestone else 1.
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
@@ -303,3 +305,36 @@ def load_pretrained_weights(model, weight_path):
                 'due to unmatched keys or layer size: {}'.
                 format(discarded_layers)
             )
+
+@torch.no_grad()
+def pad_to_max_size(tensor):
+    local_size = torch.tensor([tensor.shape[0]], dtype=torch.int64, device=tensor.device)
+    size_list = [torch.zeros([1], dtype=torch.int64, device=tensor.device)
+                 for _ in range(dist.get_world_size())]
+    dist.all_gather(size_list, local_size, async_op=False)
+    max_size = torch.cat(size_list, dim=0).max().item()
+    if local_size < max_size:
+        padding = torch.zeros((max_size - local_size, *tensor.shape[1:]),
+                              dtype=tensor.dtype, device=tensor.device)
+        flag = torch.cat([torch.ones(local_size, dtype=torch.uint8, device=tensor.device),
+                          torch.zeros(max_size - local_size, dtype=torch.uint8, device=tensor.device)], dim=0)
+        tensor = torch.cat((tensor, padding), dim=0)
+    else:
+        flag = torch.ones(local_size, dtype=torch.uint8, device=tensor.device)
+    return tensor, flag
+
+@torch.no_grad()
+def gather_tensors(tensor):
+    """ Gather tensors from different workers with different shape
+    tensors on different devices must have the same data dims except the bacth_num
+    """
+    tensor, flag = pad_to_max_size(tensor)
+    tensors_gather = [torch.ones_like(tensor) for _ in range(dist.get_world_size())]
+    flags_gather = [torch.zeros_like(flag) for _ in range(dist.get_world_size())]
+    dist.all_gather(tensors_gather, tensor, async_op=False)
+    dist.all_gather(flags_gather, flag, async_op=False)
+
+    outputs = torch.cat(tensors_gather, dim=0)
+    flags = torch.cat(flags_gather, dim=0)
+    output = outputs[flags > 0]
+    return output
