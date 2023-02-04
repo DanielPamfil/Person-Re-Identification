@@ -1,0 +1,4 @@
+Len dataset:  1095923
+Does not exist any previus snapshot in the following directory
+Epoch:  0 of 2
+17123

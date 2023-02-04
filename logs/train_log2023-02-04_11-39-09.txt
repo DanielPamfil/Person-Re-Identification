@@ -1,0 +1,4 @@
+Does not exist any previus snapshot in the following directory
+Epoch:  0 of 10
+Epoch =  0 Loss =  0 Accuracy = 0
+Save checkpoint

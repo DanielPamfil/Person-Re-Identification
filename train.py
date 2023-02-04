@@ -23,6 +23,12 @@ from torch.cuda.amp import GradScaler
 from torchreid.metrics.accuracy import accuracy
 from torchreid.utils.torchtools import gather_tensors
 
+try:
+    from torch.cuda.amp import autocast, GradScaler
+    MIX_P = True
+except Exception as exc:
+    MIX_P = False
+
 parser = argparse.ArgumentParser(description='')
 
 parser.add_argument('--dataset_path', type=str, default='')
@@ -64,7 +70,7 @@ def main_function(gpu, ngpus_per_node, args):
     dist_backend = 'gloo'
     dist_url = 'tcp://localhost:23456'
     world_size = 1
-    workers = 20
+    workers = 10
 
     # Momentum Contrast Hyperparameters
     moco_dimension = 128
@@ -93,6 +99,7 @@ def main_function(gpu, ngpus_per_node, args):
     train_dataset = CostumDataset(args.dataset_path, args.key_path, train_transformer)
     val_dataset = StandardDataset(args.evaluation_path, dataset_name='market1501', mode='test', transform=val_transformer)
 
+    print("Len dataset: ", len(train_dataset))
     # Create the model
     model = MoCo(models.resnet50, dim=moco_dimension, K=moco_queue, m=moco_momentum, T=moco_temperature, mlp=True)
 
@@ -150,6 +157,7 @@ def main_function(gpu, ngpus_per_node, args):
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     val_sampler = InferenceSampler(len(val_dataset))
 
+
     # Initialize the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None), num_workers=workers, pin_memory=True, sampler=train_sampler, drop_last=True)
     validation_loader = torch.utils.data.DataLoader(val_dataset, batch_size=128, num_workers=workers, pin_memory=True, sampler=val_sampler, drop_last=False)
@@ -170,17 +178,8 @@ def main_function(gpu, ngpus_per_node, args):
         latest = os.path.join(args.snapshots_dir, 'ckpt_latest.pth')
         filename = os.path.join(args.snapshots_dir, 'ckpt_{:04d}.pth'.format(epoch))
         print('Save checkpoint')
-        save_checkpoint_light()
-
-
-
-
-
-
-
-
-
-
+        save_current = epoch % 20 == 0 or epoch == args.epochs-1
+        #save_checkpoint_light({'epoch': epoch + 1, 'arch': 'resnet50', 'state_dict': model.state_dict(), 'optimizer' : optimizer.state_dict()}, save_cur=save_current, cur_name=filename, lastest_name=latest)
 
 
 
@@ -206,7 +205,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
 
     scaler = GradScaler()
-
+    print(len(train_loader))
     for i, (images, _) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -216,12 +215,10 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
             images[1] = images[1].cuda(args.gpu, non_blocking=True)
 
         # compute output
-        if args.mix:
-            output, target = model(im_q=images[0], im_k=images[1])
-            loss = criterion(model(im_q=images[0], im_k=images[1]))
-        else:
+        with autocast():
             output, target = model(im_q=images[0], im_k=images[1])
             loss = criterion(output, target)
+
 
         # acc1/acc5 are (K+1)-way contrast classifier accuracy
         # measure accuracy and record loss
@@ -232,20 +229,15 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
-        if args.mix:
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-        else:
-            loss.backward()
-            optimizer.step()
+
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
         # measure elapsed time
         end = time.time()
         batch_time.update(time.time() - end)
 
-        if i % print_freq == 0 and args.rank == 0:
-            progress.display(i)
 
     return losses.avg, top1.avg
 

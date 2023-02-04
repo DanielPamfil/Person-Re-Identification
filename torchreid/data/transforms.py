@@ -368,7 +368,7 @@ def get_costum_transformer(height=256, width=128, two_crop=True):
         augmentation.append(RandomApply([GaussianBlur([.1,.2])], p=gaussian_blur_p))
 
     augmentation.append(RandomHorizontalFlip())
-    augmentation.append(ToTensor)
+    augmentation.append(ToTensor())
     augmentation.append(normalizer)
 
     # Probability of erasing

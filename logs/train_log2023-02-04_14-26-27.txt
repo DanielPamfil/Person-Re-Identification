@@ -1,0 +1,31 @@
+Does not exist any previus snapshot in the following directory
+Epoch:  0 of 10
+Epoch =  0 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  1 of 10
+Epoch =  1 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  2 of 10
+Epoch =  2 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  3 of 10
+Epoch =  3 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  4 of 10
+Epoch =  4 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  5 of 10
+Epoch =  5 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  6 of 10
+Epoch =  6 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  7 of 10
+Epoch =  7 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  8 of 10
+Epoch =  8 Loss =  0 Accuracy = 0
+Save checkpoint
+Epoch:  9 of 10
+Epoch =  9 Loss =  0 Accuracy = 0
+Save checkpoint

@@ -508,7 +508,7 @@ class CostumDataset(dtst):
                 self.key_path))
         with open(self.key_path, 'rb') as f:
             data = pickle.load(f)
-        self.keys = data
+        self.keys = data['keys']
         if 'pids' in data:
             self.labels = np.array(data['pids'], np.int)
         elif 'vids' in data:
@@ -538,18 +538,11 @@ class CostumDataset(dtst):
         im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
         if self.transform is not None:
             im = Image.fromarray(im)
-            im1 =self.transform(im)
-            if self.strong_transform is not None:
-                im2 = self.strong_transform(im)
-            else:
-                im / 255
+            im = self.transform(im)
         else:
-            im1 = im / 255
-            if self.strong_transform(im):
-                im2 = self.strong_transform(im)
-            else:
-                im2 = im / 255
-        return im1, im2, label
+            im = im / 255.
+
+        return im, label
 
 class StandardDataset(dtst):
 

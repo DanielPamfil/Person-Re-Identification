@@ -1,0 +1,7 @@
+G:\Il mio Drive\Projects\ComputerVisionxBiometrics\Implementations\LUPerson-NL\LUP-NL\lupnl_lmdb\lmdb_1
+Len dataset:  1095923
+Does not exist any previus snapshot in the following directory
+train_sampler <torch.utils.data.distributed.DistributedSampler object at 0x0000029A5459C7C0>
+Epoch:  0 of 2
+ciao
+17123

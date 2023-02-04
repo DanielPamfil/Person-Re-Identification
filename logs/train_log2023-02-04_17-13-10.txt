@@ -1,0 +1,21 @@
+transformer Compose(
+    RandomResizedCrop(size=(256, 128), scale=(0.2, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear)
+    ColorJitter(brightness=[0.6, 1.4], contrast=[0.6, 1.4], saturation=[0.6, 1.4], hue=[-0.4, 0.4])
+    RandomGrayscale(p=0.2)
+    RandomHorizontalFlip(p=0.5)
+    ToTensor()
+    Normalize(mean=[0.3525, 0.3106, 0.314], std=[0.266, 0.2522, 0.2505])
+)
+TwoCropsTransformwith base transform: 
+Compose(
+    RandomResizedCrop(size=(256, 128), scale=(0.2, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear)
+    ColorJitter(brightness=[0.6, 1.4], contrast=[0.6, 1.4], saturation=[0.6, 1.4], hue=[-0.4, 0.4])
+    RandomGrayscale(p=0.2)
+    RandomHorizontalFlip(p=0.5)
+    ToTensor()
+    Normalize(mean=[0.3525, 0.3106, 0.314], std=[0.266, 0.2522, 0.2505])
+)
+Len dataset:  1095923
+Does not exist any previus snapshot in the following directory
+Epoch:  0 of 2
+17123
