@@ -52,7 +52,7 @@ python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVA
 [![Demo](graphics/VerificationReadme.jpg)](graphics/VerificationReadme.jpg)<br><br>
 To use the demo you just have to run the following code, click on the generated url and enjoy: 
 ```sh
-python blablabla.py
+python interface.py
 ```
 In the first window that you will see, you can decide wich process to testing:
  - **Enrollment**
