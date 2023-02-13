@@ -6,7 +6,7 @@ This project has the purpose to implement Person Re-Identification
 1. Build a large custom dataset extracting frames from videos from all over the world.
 1. Pre-train the model in an unsupervised manner on the dataset and then validate it on another one.
 1. Train a supervised model with the pretrained weights.
-1. An interactive demo interface that exploit the capabilities of the modela
+1. An interactive demo interface that exploit the capabilities of the models.
 
 <br>
 
