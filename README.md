@@ -12,7 +12,7 @@ This project has the purpose to implement Person Re-Identification
 ### 1. Build a Custom dataset
 To create a custom dataset you can execute the notebooks inside the following folder `/datasetBuilder`.
 In this directory you can find three different program that represent the successive steps to:
-> **GET -> EXTRACT -> CONVERT**
+> **GET -> EXTRACT -> CONVERT** <br>
 > (url) &nbsp; &nbsp; &nbsp;&nbsp;(mp4 -> jpg)&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;(mdb)
 
 The first phase consists to get a video content using the rispective YouTube url.
