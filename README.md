@@ -8,6 +8,8 @@ This project has the purpose to implement Person Re-Identification
 1. Train a supervised model with the pretrained weights.
 1. An interactive demo interface that exploit the capabilities of the modela
 
+<br>
+
 # Run the code
 ### 1. Build a Custom dataset
 To create a custom dataset you can execute the notebooks inside the following folder `/datasetBuilder`.
@@ -27,6 +29,7 @@ The last one step consists into store all the collected frames in a LMDB Databas
 ```sh
 run ConvertedLMDB.ipynb
 ```
+<br>
 
 ### 2. Pre-train the model
 Example of train
@@ -34,11 +37,15 @@ Example of train
 python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVAL_DATASET_PATH\reid" --key_path "YOUR_LMDB_PATH\lmdb_1\keys.pkl" --gpu 0 --auto_resume True --epochs 100 --batch-size 64
 ```
 
+<br>
+
 ### 3. Train a supervised model
 Example of train
 ```sh
 python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVAL_DATASET_PATH\reid" --key_path "YOUR_LMDB_PATH\lmdb_1\keys.pkl" --gpu 0 --auto_resume True --epochs 100 --batch-size 64
 ```
+
+<br>
 
 ### 4. Re-Identification Demo
 ✨Finally a graphic interface✨
