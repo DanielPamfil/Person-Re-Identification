@@ -51,7 +51,7 @@ In the first window that you will see, you can decide wich process to testing:
  - **Verification**
  - **Identification**
  
-To use the demo you don't need to modify nothing, but if you want to personalize the `Gallery` and `Query` paths (only for **Identification Task**) you can do it using the dedicated input text fields, otherwise you can use the default values.
-In the UI you can upload the interested video content (`.mp4`) and, according to the current interested task, specify some additional info if needed.
-The **Enrollment Task** requires a text value that represent the `Identity name`, used to store acquire frame in namesake folder.
+To use the demo you don't need to modify nothing, but if you want to personalize the `Gallery` and `Query` paths (only for **Identification Task**) you can do it using the dedicated input text fields, otherwise you can use the default values.<br>
+In the UI you can upload the interested video content (`.mp4`) and, according to the current interested task, specify some additional info if needed.<br>
+The **Enrollment Task** requires a text value that represent the `Identity name`, used to store acquire frame in namesake folder.<br>
 The **Verification Task** needs a claimed identity, selectable using the proposed `identity checkbox options` associated with identity photos.
