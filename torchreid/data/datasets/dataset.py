@@ -496,6 +496,7 @@ class CostumDataset(dtst):
         self.key_path = key_path
         self.transform = transform
 
+        # Checking if the data directory exists
         if not osp.exists(self.data_dir):
             raise IOError('dataset directiory: {} is not exists'.format(
                 self.data_dir))
@@ -503,18 +504,20 @@ class CostumDataset(dtst):
         self.env = None
 
     def load_dataset_infos(self):
+        # Checking if the key file exists
         if not osp.exists(self.key_path):
             raise IOError('key file: {} not exists'.format(
                 self.key_path))
+        # Opening the key file and loading the data
         with open(self.key_path, 'rb') as f:
             data = pickle.load(f)
         self.keys = data['keys']
         if 'pids' in data:
-            self.labels = np.array(data['pids'], np.int)
+            self.labels = np.array(data['pids'], np.int64)
         elif 'vids' in data:
-            self.labels = np.array(data['vids'], np.int)
+            self.labels = np.array(data['vids'], np.int64)
         else:
-            self.labels = np.zeros(len(self.keys), np.int)
+            self.labels = np.zeros(len(self.keys), np.int64)
         self.num_cls = len(set(self.labels))
 
     def __len__(self):
@@ -552,43 +555,63 @@ class StandardDataset(dtst):
         self.dataset_name = dataset_name
         self.mode = mode
         self.transform = transform
+        # Set the directories for the dataset and the mode (train or test)
         self.dataset_directory = osp.join(self.root, self.dataset_name)
         self.train_directory = osp.join(self.dataset_directory, 'bounding_box_train')
         self.query_directory = osp.join(self.dataset_directory, 'query')
         self.gallery_directory = osp.join(self.dataset_directory, 'bounding_box_test')
+        # Check if the mode is train, if so, call the preprocess method with the train directory
         if self.mode == 'train':
             self.items, self.num_pids, self_cams = self.preprocess(self.train_directory)
+        # If mode is not train, call the preprocess method with the query and gallery directories
         else:
             self.query, self.num_query_pids, self.num_query_cams = self.preprocess(self.query_directory, False, is_query=True)
             self.gallery, self.num_gallery_pids, self.num_gallery_cams = self.preprocess(self.gallery_directory, False, is_query=False)
             self.items = self.query + self.gallery
+            # maximum number of person ids
             self.num_pids = max(self.num_gallery_pids, self.num_query_pids)
+            # maximum number of camera ids
             self.num_cams = max(self.num_query_cams, self.num_gallery_cams)
 
     def preprocess(self, path, relabel=True, is_query=None):
+        # pattern to match the person id and camera id from the filename
         pattern = re.compile(r'([-\d]+)_c(\d+)')
+        # dictionaries to store the unique person ids and camera ids
         all_pids, all_cids = {}, {}
+        # list to store the preprocessed results and file paths
         results, file_paths = [], []
+        # Get the file paths for all the images in the given path with the specified extensions
         for ext in self.EXTs:
             file_paths.extend(glob(osp.join(path, ext)))
+        # Loop through the file paths and extract the person id, camera id and file path
         for file_path in file_paths:
+            # Get the file name from the file path
             file_name = osp.basename(file_path)
+            # Extract the person id and camera id from the file name
             pid, cid = map(int, pattern.search(file_name).groups())
+            # Skip if the person id is -1
             if pid == -1: continue
+            # If relabel is set to True, assign unique integer ids to each person id
             if relabel:
                 if pid not in all_pids:
                     all_pids[pid] = len(all_pids)
             else:
                 if pid not in all_pids:
                     all_pids[pid] = len(all_pids)
+            # Add the camera id to the dictionary of all camera ids if it doesn't already exist
             if cid not in all_cids:
                 all_cids[cid] = cid
+            # Update the person id with the unique integer id assigned to it
             pid = all_pids[pid]
+            # If is_query is None, add the file path, person id, and camera id to the results list
             if is_query is None:
                 results.append([file_paths, pid, cid])
+            # If is_query is set to True or False, add the file path, person id, camera id, and a flag indicating
+            # whether the image is from the query or gallery set
             else:
                 flag = 1 if is_query else 0
                 results.append([file_paths, pid, cid, flag])
+        # Return the sorted results list, number of unique person ids, and number of unique camera ids
         return sorted(results), int(len(all_pids)), int(len(all_cids))
 
     def __len__(self):

@@ -342,55 +342,70 @@ def build_transforms(
     return transform_tr, transform_te
 
 def get_costum_transformer(height=256, width=128, two_crop=True):
+    # Normalize the mean and standard deviation values
     mean = [0.3525, 0.3106, 0.3140]
     std = [0.2660, 0.2522, 0.2505]
     normalizer = Normalize(mean=mean, std=std)
 
+    # Initialize augmentation list with RandomResizedCrop
     augmentation = [RandomResizedCrop((height, width), scale=(0.2, 1.))]
 
+    # Create a dictionary of augmentation arguments
     augmentation_dictionary = {'moco':{'cj': 1.0, 'cj-s': 0.4, 'gs': 0.2,}}
 
+    # Get the augmentation arguments for the momentum contrast model
     augmentation_arguments = augmentation_dictionary['moco']
     color_jitter_p = augmentation_arguments.get('cj', 0.)
     color_jitter_s = augmentation_arguments.get('cj-s', 0.4)
 
+    # Add ColorJitter to the augmentation list if color_jitter_p is between 0 and 1
     if 0. < color_jitter_p < 1.:
         augmentation.append(RandomApply([ColorJitter(color_jitter_s, color_jitter_s, color_jitter_s, 0.1)],  color_jitter_p))
+    # Add ColorJitter to the augmentation list if color_jitter_p is equal to 1
     elif color_jitter_p == 1:
         augmentation.append(ColorJitter(color_jitter_s, color_jitter_s, color_jitter_s, color_jitter_s))
 
+    # Add RandomGrayscale to the augmentation list if gray_scale_p is between 0 and 1
     gray_scale_p = augmentation_arguments.get('gs', 0.)
     if 0. < gray_scale_p <= 1.:
         augmentation.append(RandomGrayscale(p=gray_scale_p))
 
+    # Add RandomApply of GaussianBlur to the augmentation list if gaussian_blur_p is between 0 and 1
     gaussian_blur_p = augmentation_arguments.get('gb', 0.)
     if 0. < gaussian_blur_p < 1.:
         augmentation.append(RandomApply([GaussianBlur([.1,.2])], p=gaussian_blur_p))
 
+    # Add RandomHorizontalFlip and ToTensor to the augmentation list
     augmentation.append(RandomHorizontalFlip())
     augmentation.append(ToTensor())
     augmentation.append(normalizer)
 
-    # Probability of erasing
+    # Get the probability of erasing
     random_erase_p = augmentation_arguments.get('re', 0.)
-    # Max erasing area
+    # Get the maximum erasing area
     random_erase_s = augmentation_arguments.get('re-s', 0.4)
 
+    # Add RandomErasing to the augmentation list if random_erase_p is between 0 and 1
     if 0. < random_erase_p < 1.:
         augmentation.append((RandomErasing(probability=random_erase_p, sh=random_erase_s)))
 
+    # Create a transformer by composing all the augmentations in the list
     transformer = Compose(augmentation)
 
+    # If two_crop is True, wrap the transformer with TwoCropsTransform
     if two_crop:
         transformer = TwoCropsTransform(transformer)
     return transformer
 
 def get_validation_transformer(height=256, width=128):
+    # Define the mean and standard deviation values for normalization
     mean = [0.3525, 0.3106, 0.3140]
     std = [0.2660, 0.2522, 0.2505]
 
+    # Create a normalizer object using the mean and standard deviation values
     normalizer = Normalize(mean=mean, std=std)
 
+    # Create a transformer using the Resize, ToTensor, and normalizer operations
     transformer = Compose([Resize((height, width), interpolation=3), ToTensor(), normalizer])
 
     return transformer

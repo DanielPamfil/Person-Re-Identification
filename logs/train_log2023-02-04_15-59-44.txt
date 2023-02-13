@@ -1,6 +1,0 @@
-G:\Il mio Drive\Projects\ComputerVisionxBiometrics\Implementations\LUPerson-NL\LUP-NL\lupnl_lmdb\lmdb_1
-Len dataset:  1095923
-Does not exist any previus snapshot in the following directory
-Epoch:  0 of 2
-ciao
-17123

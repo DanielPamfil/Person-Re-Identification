@@ -1,2 +1,0 @@
-Does not exist any previus snapshot in the following directory
-Epoch:  0 of 100
