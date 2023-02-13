@@ -32,6 +32,7 @@ run ConvertedLMDB.ipynb
 <br>
 
 ### 2. Pre-train the model
+Move into the `/fast-reid` folder
 Example of train
 ```sh
 python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVAL_DATASET_PATH\reid" --key_path "YOUR_LMDB_PATH\lmdb_1\keys.pkl" --gpu 0 --auto_resume True --epochs 100 --batch-size 64
