@@ -42,7 +42,12 @@ python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVA
 ### 3. Train a supervised model
 Example of train
 ```sh
-python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVAL_DATASET_PATH\reid" --key_path "YOUR_LMDB_PATH\lmdb_1\keys.pkl" --gpu 0 --auto_resume True --epochs 100 --batch-size 64
+python tools/train_net.py --num-gpus 1 --config-file ./configs/MyDataset/r50_cuhk03.yml MODEL.BACKBONE.PRETRAIN_PATH "pre_models/pre-train/r50.pth" DATASETS.ROOT "datasets" INPUT.DO_AUTOAUG False TEST.EVAL_PERIOD 1 DATASETS.KWARGS "data_name:cuhk03+split_mode:id+split_ratio:1.0" OUTPUT_DIR "logs/r50/cuhk03/test" MODEL.DEVICE "cuda:0" TEST.PRECISE_BN.DATASET "cuhk03"
+```
+Example of evalutation of the trained model
+```sh
+python tools/train_net.py --eval-only --config-file ./configs/MyDataset/r50.yml DATASETS.ROOT "datasets" DATASETS.KWARGS "data_name:market" MODEL.WEIGHTS fast-reid/logs/r50/market/r50.pth MODEL.DEVICE "cuda:0" OUTPUT_DIR "logs//test/market"
+
 ```
 
 <br>
