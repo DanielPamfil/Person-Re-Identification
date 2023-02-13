@@ -48,7 +48,7 @@ python train.py --dataset_path "YOUR_LMDB_PATH\lmdb" --evaluation_path "YOUR_EVA
 <br>
 
 ### 4. Re-Identification Demo
-✨Finally a graphic interface✨
+✨Finally a graphic interface✨<br>
 To use the demo you just have to run the following code, click on the generated url and enjoy: 
 ```sh
 python blablabla.py
