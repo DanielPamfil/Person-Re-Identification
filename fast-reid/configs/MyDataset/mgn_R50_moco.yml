@@ -17,15 +17,14 @@ SOLVER:
   IMS_PER_BATCH: 32
 
 DATASETS:
-  NAMES: ("CMDM",)
-  TESTS: ("CMDM",)
+  NAMES: ("CostumDataset",)
+  TESTS: ("CostumDataset",)
   KWARGS: 'data_name:duke+split_mode:id+split_ratio:1.0'
   #ROOT: "C:/Users/danie/PycharmProjects/ComputerVision/DemoFastReId/fast-reid/datasets/our_Market-1501-v15.09.15"
   ROOT: "datasets/market1501"
-  #ROOT: "/home/dengpanfu/data"
 
 TEST:
   EVAL_PERIOD: 60
   ROC_ENABLED: True
 
-OUTPUT_DIR: "logs/cmdm/mgn_lup_unsup"
+OUTPUT_DIR: "logs/CostumDataset/mgn_lup_unsup"

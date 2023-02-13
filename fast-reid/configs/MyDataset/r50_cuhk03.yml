@@ -20,9 +20,9 @@ DATASETS:
   NAMES: ("CUHK03",)
   TESTS: ("CUHK03",)
   KWARGS: 'data_name:duke+split_mode:id+split_ratio:1.0'
-  #ROOT: "C:/Users/danie/PycharmProjects/ComputerVision/DemoFastReId/fast-reid/datasets/our_Market-1501-v15.09.15"
+  #ROOT: "C:/Users/danie/PycharmProjects/ComputerVision/DemoFastReId/fast-reid/datasets/CUHK03"
   ROOT: "datasets/"
-  #ROOT: "/home/dengpanfu/data"
+
 
 TEST:
   EVAL_PERIOD: 60
