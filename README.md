@@ -1,6 +1,6 @@
 # Person Re-Identification
 
-This project has the purpose to implement Person Re-Identification
+This project has the purpose to implement and then ecplot Person Re-Identification.
 
 ## Features
 1. Build a large custom dataset extracting frames from videos from all over the world.
